@@ -4,7 +4,7 @@ import Pokemon from '../Pokemon/Pokemon';
 import usePokemonList from '../../hooks/usePokemonList';
 
 function PokemonList() {
-    const {pokemonListState, setPokemonListState} = usePokemonList()
+    const [pokemonListState,setPokemonListState] = usePokemonList()
     return (
         <div className='pokemon-list-wrapper'>
             <div className='pokemon-wrapper'>

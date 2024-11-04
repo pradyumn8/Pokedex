@@ -67,7 +67,7 @@ function usePokemonList() {
     //     downloadPokemons();
     // }, [pokedexUrl]);
 
-    return {pokemonListState,setPokemonListState}
+    return [pokemonListState,setPokemonListState]
 }
 
 export default usePokemonList

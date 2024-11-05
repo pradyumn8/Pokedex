@@ -1,73 +1,79 @@
 import axios from 'axios';
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react';
 
-function usePokemonList() {
-// const [pokemonList, setPokemonList] = useState([]);
+function usePokemonList(url, type) {
+    // const [pokemonList, setPokemonList] = useState([]);
     // const [isLoading, setIsLoading] = useState(true);
 
     // const [pokedexUrl, setPokedexUrl] = useState('https://pokeapi.co/api/v2/pokemon');
 
     // const [nextUrl, setNextUrl] = useState('');
     // const [prevUrl, setPrevUrl] = useState('');
-    
+
     const [pokemonListState, setPokemonListState] = useState({
         pokemonList: [],
         isLoading: true,
-        pokedexUrl: 'https://pokeapi.co/api/v2/pokemon',
+        pokedexUrl: url,
         nextUrl: '',
         prevUrl: ''
     });
 
     async function downloadPokemons() {
         // setIsLoading(true);
+        setPokemonListState((state) => ({ ...state, isLoading: true })); // Set loading state to true
 
-        setPokemonListState((prevState) => ({ ...prevState, isLoading: true })); // Set loading state to true
-        try {
-            const response = await axios.get(pokemonListState.pokedexUrl); // Fetch 20 Pokémon
-            const pokemonResults = response.data.results;
+        const response = await axios.get(pokemonListState.pokedexUrl); // Fetch 20 Pokémon or specific type
+        const pokemonResults = response.data.results;
+        console.log('response ise',pokemonResults);
+        console.log(pokemonListState);
 
-            // Fetched data for next and previous URLs
-            const nextUrl = response.data.next;
-            const prevUrl = response.data.previous;
-            // setNextUrl(response.data.next);
-            // setPrevUrl(response.data.previous);
+        // Update next and previous URLs in state
+        setPokemonListState((state) => ({
+            ...state,
+            nextUrl: response.data.next,
+            prevUrl: response.data.previous
+        }));
 
-            // Create an array of promises to fetch each Pokémon's details
-            const pokemonResultPromises = pokemonResults.map((pokemon) => axios.get(pokemon.url));
-            const pokemonData = await axios.all(pokemonResultPromises); // Array of 20 Pokémon detailed data
-
-            // Extract id, name, image, and types from each Pokémon's data
-            const pokemonListResult = pokemonData.map((pokemonData) => {
-                const pokemon = pokemonData.data;
-                return {
-                    id: pokemon.id,
-                    name: pokemon.name,
-                    image: pokemon.sprites.other?.dream_world.front_default || pokemon.sprites.front_shiny,
-                    types: pokemon.types.map((typeInfo) => typeInfo.type.name)
-                };
-            });
-
-            // setPokemonList(pokemonListResult);
-            setPokemonListState((prevState) => ({
-                ...prevState,
-                pokemonList: pokemonListResult, // Update with the fetched Pokémon data
-                nextUrl,
-                prevUrl,
-                isLoading: false
-            }));
-        } catch (error) {
-            console.error("Error fetching Pokémon data:", error);
+        if(type){
+            setPokemonListState((state)=>({
+                ...state,
+                pokemonList: response.data.pokemon.slice(0,5)
+            }))
         }
+        // If no type, fetch detailed data for each Pokémon
+        const pokemonResultPromise = pokemonResults.map((pokemon) => axios.get(pokemon.url));
+        console.log('pokemonResultPromises',pokemonResultPromise)
+        const pokemonData = await axios.all(pokemonResultPromise); // Array of detailed Pokémon data
+        console.log('pokemonData',pokemonData   )
+
+
+        const pokeListResult = pokemonData.map((pokeData) => {
+            const pokemon = pokeData.data;
+            return {
+                id: pokemon.id,
+                name: pokemon.name,
+                image: pokemon.sprites.other?.dream_world.front_default || pokemon.sprites.front_shiny,
+                types: pokemon.types.map((t) => t.type.name)
+            };
+        });
+
+        // Update state with fetched Pokémon data
+        setPokemonListState((state) => ({
+            ...state,
+            pokemonList: pokeListResult,
+            isLoading: false
+        }));
     }
 
     useEffect(() => {
         downloadPokemons();
     }, [pokemonListState.pokedexUrl]);
+
     // useEffect(() => {
     //     downloadPokemons();
     // }, [pokedexUrl]);
 
-    return [pokemonListState,setPokemonListState]
+    return [pokemonListState, setPokemonListState]; // Return the state and updater function
 }
 
-export default usePokemonList
+export default usePokemonList;

@@ -16,7 +16,8 @@ Pokeddexx is a React-based application that fetches Pokemon data using the PokeA
 2. Click on a Pokemon to view its details and similar types.
 
 ## 🎯 Live Demo:
-[Pokeddexx](https://pokeddexx.netlify.app/)
+
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Click%20Here-green)](https://pokeddexx.netlify.app/)  
 
 ## 📥 Installation and Setup
 ### Clone the repository
